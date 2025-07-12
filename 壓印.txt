@@ -1,0 +1,11 @@
+我pillow的字畫好了，但是他沒辦法顯示在我的影片裡，我是用ImageClip載入影片的，要怎樣才能把pillow的字壓在影片上?
+
+
+✅ 解法：用 ImageClip 把 Pillow 產生的圖片當作字幕疊上影片
+你可以把 Pillow 畫好的圖片（文字）轉成 NumPy 陣列，再用 moviepy.editor.ImageClip 把它放進影片裡。
+
+🔁 重點小結：
+你不能直接把 Pillow 圖片給 ImageClip，要轉成 NumPy 陣列。
+要讓圖片背景透明，要用 "RGBA" 模式建立。
+用 CompositeVideoClip 疊加圖層，順序就是畫面上下順序。
+可以加 .set_start() .set_pos() .set_duration() 來調整字幕位置與出現時間。
