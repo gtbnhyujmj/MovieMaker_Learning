@@ -1,0 +1,61 @@
+✅ 1. Pillow (PIL)
+一個強大的影像處理工具，可以自由繪製文字、加特效（陰影、模糊、暈影），非常靈活。
+
+優點：
+
+完全掌控字型、大小、顏色、透明度
+
+可以加濾鏡、暈影等效果
+
+不依賴 ImageMagick
+
+範例：
+
+python
+複製
+編輯
+from PIL import Image, ImageDraw, ImageFont, ImageFilter
+
+# 建立畫布
+img = Image.new("RGBA", (640, 360), (0, 0, 0, 0))
+draw = ImageDraw.Draw(img)
+
+# 設定字型
+font = ImageFont.truetype("arial.ttf", 48)
+draw.text((50, 150), "這有對嗎？", font=font, fill="yellow")
+
+# 加入暈影效果
+blurred = img.filter(ImageFilter.GaussianBlur(radius=5))
+img = Image.alpha_composite(blurred, img)
+
+img.show()  # 預覽
+img.save("text_with_effect.png")
+✅ 2. OpenCV + PIL
+如果你要做動畫或影片文字特效，可以把 OpenCV 與 PIL 結合，製作幀動畫。
+
+優點：
+
+可製作動態放大、淡入淡出等動畫
+
+適合影片、動態字幕處理
+
+✅ 3. manim（數學動畫製作工具）
+這是 MIT 的工具，本來是用來製作數學教學動畫，但它也支援高品質文字動畫，像是淡入淡出、彈跳、移動等效果。
+
+優點：
+
+支援高質感動畫
+
+矢量字體，畫質非常清晰
+
+適合製作教育影片或正式專案
+
+✅ 4. Cairo + Pango（高階 2D 圖形庫）
+這是更底層但專業的解法，如果你要做跨平台、字體排版控制強的東西（類似文字藝術師），可以考慮這個路線。
+
+結論建議：
+✅ 簡單靜態圖文字處理 → Pillow
+
+✅ 動畫 + 特效影片字幕 → OpenCV + Pillow 或 moviepy
+
+✅ 教學/幾何動畫或彈跳效果字體 → manim
