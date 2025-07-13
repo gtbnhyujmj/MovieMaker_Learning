@@ -1,0 +1,7 @@
+/content/
+├── backgrounds/
+│   ├── bg1.png 或 bg1.mp4
+├── characters/
+│   ├── char1.png
+├── overlays/
+│   ├── top_icon.png
