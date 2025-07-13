@@ -1,0 +1,8 @@
+🔧 建議開發順序
+先把目前 .ipynb 程式拆成三個 py 檔案（compose, engine, main）
+
+放到一個資料夾 sticker_maker/
+
+測試是否可以 import 並執行
+
+最後再包成 pip 套件、或直接 !pip install -e . 在 Colab 內用
