@@ -1,0 +1,123 @@
+🔧 程式碼開始！
+python
+複製
+編輯
+# 安裝需要的套件
+!pip install moviepy opencv-python-headless --quiet
+python
+複製
+編輯
+import cv2
+import os
+import numpy as np
+from moviepy.editor import VideoFileClip, ImageSequenceClip
+
+# 設定資料夾位置
+bg_folder = "/content/backgrounds"
+char_folder = "/content/characters"
+overlay_folder = "/content/overlays"
+
+# 讀取人物和圖案圖片
+char_path = os.path.join(char_folder, "char1.png")
+overlay_path = os.path.join(overlay_folder, "top_icon.png")
+
+char_img = cv2.imread(char_path, cv2.IMREAD_UNCHANGED)
+overlay_img = cv2.imread(overlay_path, cv2.IMREAD_UNCHANGED)
+🧰 工具函數：用來貼上透明圖層
+python
+複製
+編輯
+# 將 overlay 貼在 background 上（支援透明 PNG）
+def overlay_image(background, overlay, position):
+    x = position[0]
+    y = position[1]
+    
+    bh, bw = background.shape[:2]
+    oh, ow = overlay.shape[:2]
+    
+    if x + ow > bw or y + oh > bh:
+        print("超出邊界，略過貼圖")
+        return background
+
+    if overlay.shape[2] == 4:
+        alpha = overlay[:, :, 3] / 255.0
+        for c in range(3):
+            background[y:y+oh, x:x+ow, c] = (
+                alpha * overlay[:, :, c] + (1 - alpha) * background[y:y+oh, x:x+ow, c]
+            )
+    else:
+        background[y:y+oh, x:x+ow] = overlay
+
+    return background
+🖼️ 合成一張畫面
+python
+複製
+編輯
+# 合成單張畫面：人物放中間，圖案放底下
+def compose_frame(bg_frame, char_img, overlay_img, char_y_offset_ratio):
+    h, w = bg_frame.shape[:2]
+    output = bg_frame.copy()
+
+    # 調整人物圖片大小（寬度 40%）
+    char_width = int(w * 0.4)
+    char_height = int(char_img.shape[0] * char_width / char_img.shape[1])
+    char_resized = cv2.resize(char_img, (char_width, char_height))
+
+    # 計算人物位置（中間 + offset）
+    char_x = (w - char_width) // 2
+    char_y = int((h - char_height) // 2 + h * char_y_offset_ratio)
+
+    output = overlay_image(output, char_resized, (char_x, char_y))
+
+    # 調整圖案大小（寬度 30%）
+    overlay_width = int(w * 0.3)
+    overlay_height = int(overlay_img.shape[0] * overlay_width / overlay_img.shape[1])
+    overlay_resized = cv2.resize(overlay_img, (overlay_width, overlay_height))
+
+    # 圖案放在畫面下 1/3 處
+    overlay_x = (w - overlay_width) // 2
+    overlay_y = int(h * 0.33)
+
+    output = overlay_image(output, overlay_resized, (overlay_x, overlay_y))
+
+    return output
+📽️ 處理背景：可以是影片也可以是圖片
+python
+複製
+編輯
+# 選擇背景檔案
+bg_file = os.path.join(bg_folder, "bg1.mp4")  # 或 .png
+is_video = bg_file.endswith(".mp4")
+
+char_offset_ratio = 0.0  # 可以設成 0.1 或 -0.1 讓人物上下移
+
+if is_video:
+    # 背景是影片
+    clip = VideoFileClip(bg_file)
+    fps = clip.fps
+    new_frames = []
+
+    for frame in clip.iter_frames():
+        frame_bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+        composed = compose_frame(frame_bgr, char_img, overlay_img, char_offset_ratio)
+        new_frames.append(cv2.cvtColor(composed, cv2.COLOR_BGR2RGB))
+
+    # 儲存新影片
+    output_path = "/content/output.mp4"
+    result_clip = ImageSequenceClip(new_frames, fps=fps)
+    result_clip.write_videofile(output_path, codec="libx264")
+
+else:
+    # 背景是圖片
+    bg_img = cv2.imread(bg_file)
+    composed = compose_frame(bg_img, char_img, overlay_img, char_offset_ratio)
+
+    # 儲存新圖片
+    output_path = "/content/output.png"
+    cv2.imwrite(output_path, composed)
+
+print("合成完成！輸出檔案： " + output_path)
+🎉 成功之後你會得到：
+output.mp4：合成影片
+
+或 output.png：合成靜態圖片
