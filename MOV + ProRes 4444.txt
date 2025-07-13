@@ -1,2 +1,16 @@
 推薦作法：MOV + ProRes 4444
 這是各大專業影片工作流程的標配。
+
+ffmpeg 處理 mov/png/ProRes/VP9/Ut Video 這些格式時，預設用的是 CPU
+GPU 僅在處理 H.264、H.265 編碼時才有 CUDA/NVENC 特殊支援
+你目前用的 png 及 ProRes 編碼（和 alpha channel），這些都只能走 CPU，GPU 不會加速
+
+但單純影格合成、影像疊加、ffmpeg合成 MOV都還是 CPU 跑比較好
+
+你可以用 CPU 核心爆肝，Colab 會自動用高性能 CPU（通常 2-4 核，Pro 甚至有 8 核）
+
+注意事項
+Colab 免費版「單次任務」大約能跑4-12小時，超時會強制中斷
+記得重要的影片檔要先下載回自己電腦或雲端！（不然重連就消失）
+用大檔的時候，如果執行過久失敗，可以分批執行
+
